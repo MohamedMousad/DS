@@ -1,7 +1,9 @@
 #include <iostream>
 #include <sstream>
 #include <stack>
+#include <queue>
 #include <map>
+#include <climits>
 using namespace std;
 // Node structure
 struct Node
@@ -82,6 +84,7 @@ public:
         while (curr)
         {
             Node *temp = curr->next;
+            curr->next = nullptr;
             delete curr;
             curr = temp;
         }
@@ -287,8 +290,7 @@ public:
             curr->next = prev;
             prev = curr;
             curr = next;
-            if (!curr)
-                break;
+            if (!curr) break;
             next = next->next;
         }
         swap(head, tail);
@@ -497,42 +499,106 @@ public:
     // insert elemnts of a linked list in between elements of another
     void insert_alternating(linked_list &another)
     {
-        Node *curr = head, *other = another.head;
+        Node *curr = head, *other = another.head , *other_tail = another.tail;
         if (!curr || !other)
             return;
+        if (length <= another.length)
+            tail  = another.tail;
+        length += another.length;
         while (curr && other)
         {
             Node *temp1 = curr->next, *temp2 = other->next;
             curr->next = other;
             if (temp1)
-            {
                 other->next = temp1; // curr->next
-            }
             curr = temp1;
             other = temp2;
         }
-
-        // Update the tail pointer if necessary
-        if (!curr)
-        {
-            // If we've reached the end of the first list
-            // The last node from the second list is our new tail
-            Node *last = head;
-            while (last && last->next)
-            {
-                last = last->next;
-            }
-            if (last)
-            {
-                tail = last;
-            }
-        }
         // Set the other list's head to nullptr to prevent double deletion
         another.head = nullptr;
-        // Update the length to reflect the combined list
-        length += another.length;
         another.length = 0;
         another.tail = nullptr;
+    }
+    // add two linked lists together (decimal addition)
+    void add_num(linked_list& another){
+        int rem = 0;
+        Node* first = head , * second = another.head;
+        for (; first && second; first = first->next , second = second->next){
+            int temp = first->data + second->data + rem;
+            first->data = temp % 10;
+            rem = temp/10;
+        }
+        if (first){
+            while (first){
+                int temp = second->data+ rem;
+                first->data = temp % 10;
+                rem = temp/10;
+                first = first->next;
+            }
+            first->data = first->data + rem;
+        }
+        else if (second) {
+            while (second){
+                int temp = second->data+ rem;
+                insert_end(temp%10);
+                rem = temp/10;
+                second = second->next;
+            }
+        }
+        if (rem && !first && !second){
+            insert_end(rem);
+        }
+    }
+    // remove repeated elements including it's first occurrence if repeated after(list must be sorted)
+    void remove_repeated(){
+        Node* curr = head  , * prev = nullptr; 
+        int recent = -INT_MAX;
+        while (curr){
+            if(curr->data == recent){
+                if (curr == head) {
+                    curr = curr->next;
+                    delete_front();
+                }
+                else delete_node(prev);
+            }
+            else if (curr->next && curr->next->data == curr->data){
+                recent = curr->data;
+                delete_node(curr);
+            }
+            else {
+                prev = curr;
+                curr = curr->next;
+            }
+        }
+    }
+    // reverse every k elements in a linked list 
+    void reverse_chains(int k){
+        int cnt = 1 ; Node* curr = head->next , *prev = head ; 
+        queue<Node*> q;
+        while (curr && cnt < int(length/k) * k){
+            Node* next = curr->next;
+            if (cnt %k == 1){
+                q.push(prev);
+            }
+            if (cnt % k == k-1 && cnt!= k-1){
+                q.front()->next = curr;
+                q.pop();
+            }
+            if (cnt % k != 0){
+                curr->next = prev;
+            }
+            if (cnt == k-1) head = curr;
+            prev = curr;
+            curr = next;
+            cnt++;
+        }
+        if (!q.empty() && length&k == 0){
+            tail = q.front();
+            q.front()->next = nullptr;
+        }
+        else {
+            q.front()->next = curr;
+        }
     }
 };
 // linked list with head only (has limitations)
@@ -574,8 +640,10 @@ int main()
 {
     linked_list list1, list2;
     list1.insert_end(1);
+    list2.insert_end(1);
     list2.insert_end(2);
     list1.insert_alternating(list2);
     list1.print();
+    list2.print();
     return 0;
 }
