@@ -75,7 +75,7 @@ private:
     Node *head = nullptr;
     Node *tail = nullptr;
     int length = 0;
-
+    
 public:
     // destruct all linkedlist nodes
     ~linked_list()
@@ -98,6 +98,9 @@ public:
             // do nothing
         }
         return curr;
+    }
+    int size(){
+        return length;
     }
     // get positiion of a value
     int get_position(int value)
@@ -647,3 +650,19 @@ int main()
     list2.print();
     return 0;
 }
+class Queue {
+    linked_list list;
+public:
+    void enqueue(int value){
+        list.insert_end(value);
+    }
+    int dequeue(){
+        return list.delete_front();
+    }
+    void display(){
+        list.print();
+    }
+    bool is_empty(){
+        return list.size() == 0;
+    }
+};

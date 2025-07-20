@@ -525,6 +525,7 @@ public :
         return head == nullptr;
     }
 };
+// convert infix expression to postfix expression
 string postfix(string evaluate){
     stack<char> operators;
     string ans = "";
@@ -552,7 +553,25 @@ string postfix(string evaluate){
     }
     return ans;
 }
-
+//queue easy to medium 3rd and 4th problem implementing queue using 2 stacks with O(1) insertion and deletion
+class Queue_2stacks{
+    Stack st1;
+    Stack st2;
+    void push(int value){
+        assert(!st1.isFull());
+        st1.push(value);
+    }
+    int pop(){
+        if (st1.isEmpty() && st1.isEmpty()) return 0;
+        if (st2.isEmpty()){
+            while (!st1.isEmpty()){
+                int value = st1.pop();
+                st2.push(value);
+            }
+            return st2.pop();
+        }
+    }
+};
 signed main()
 {
     cout << postfix("(2+3)*4") << endl;
